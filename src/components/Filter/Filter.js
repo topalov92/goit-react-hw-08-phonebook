@@ -1,64 +1,39 @@
-import React from 'react';
+import { useState } from 'react';
+import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import contactsActions from '../../redux/contactsActions';
-import { LabelStyled, InputStyled } from './Filter.styles';
+import Input from '../Input';
+import { filterContacts } from '../../redux/reduxContacts/contactsAction';
+import Styles from './Filter.module.css';
 
-const Filter = ({
-  id,
-  type,
-  label,
-  name,
-  placeholder,
-  value,
-  onChange,
-  title,
-  required,
-  ...allProps
-}) => {
+const Filter = ({ onChangeInputByFilter }) => {
+  const [state, setState] = useState('');
+  const items = useSelector(state => state.contacts.items);
+  const onChangeInput = ({ target: { value } }) => {
+    setState(value);
+    onChangeInputByFilter(value);
+  };
+
+  if (!items.length) {
+    return null;
+  }
   return (
-    <>
-      <LabelStyled htmlFor={id}>{label}</LabelStyled>
-      <InputStyled
-        id={id}
-        type={type}
-        name={name}
-        {...allProps}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        title={title}
-        required={required}
+    <div className={Styles.Container}>
+      <Input
+        value={state}
+        name="search"
+        placeholder="Search contact"
+        onChangeInput={onChangeInput}
       />
-    </>
+    </div>
   );
 };
 
-Filter.defaultProps = {
-  type: 'text',
-  placeholder: '',
-  title: '',
-  required: false,
-};
-
 Filter.propTypes = {
-  id: PropTypes.string.isRequired,
-  type: PropTypes.string,
-  label: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  placeholder: PropTypes.string,
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  required: PropTypes.bool,
+  onChangeInputByFilter: PropTypes.func.isRequired,
 };
-
-const mapStateToProps = state => ({
-  value: state.contactList.filter,
-});
 
 const mapDispatchToProps = dispatch => ({
-  onChange: evt => dispatch(contactsActions.changeFilter(evt.target.value)),
+  onChangeInputByFilter: value => dispatch(filterContacts(value)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Filter);
+export default connect(null, mapDispatchToProps)(Filter);

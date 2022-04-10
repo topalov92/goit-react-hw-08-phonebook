@@ -1,114 +1,90 @@
-import React, { useState } from 'react';
-import PropTypes from "prop-types";
-import { connect } from 'react-redux';
+
+
+import { useState } from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux';
+import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import contactsActions from '../../redux/contactsActions'
+import Button from '../Button';
+import styles from './ContactForm.module.css';
+import Input from '../Input';
 
+import notify from '../Notification/Notification';
+import { contactsOperation, contactsSelector } from '../../redux/reduxContacts';
 
-import {
-  FormStyled,
-  LabelStyled,
-  InputStyled,
-  SubmitButtonStyled,
-} from './ContactForm.styles.js';
+const ContactForm = ({ setIsVisibleModal }) => {
+  const [state, setState] = useState({ name: '', number: '' });
+  const items = useSelector(contactsSelector.getItems);
+  const dispatch = useDispatch();
 
- const ContactForm = ({ contacts, onSubmit}) => {
-  const [id, setId] = useState('');
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-
-  const handleInputValues = evt => {
-    const { name, value } = evt.currentTarget;
-
-    switch (name) {
-      case 'name':
-        setName(value);
-        break;
-      case 'number':
-        setNumber(value);
-        break;
-      default:
-        return;
-    }
-
-    setId(uuidv4())
+  const onChangeInput = ({ target: { name, value } }) => {
+    setState({ ...state, [name]: value });
   };
 
-  const resetForm = () => {
-    setId('');
-    setName('');
-    setNumber('');
-  };
-
-    const submitForm = evt => {
-    evt.preventDefault();
+  const addContactOnPhonebook = ev => {
+    ev.preventDefault();
+    const {
+      target: { name, number },
+    } = ev;
     if (
-      contacts.some(
-        contact =>
-          contact.name.toLowerCase() === evt.target.name.value.toLowerCase(),
-      )
+      items.find(user => user.name.toLowerCase() === name.value.toLowerCase())
     ) {
-      alert(
-        'You have contact with this name, please remove old contact and create new',
-      );
-      return;
+      return notify(name.value.toUpperCase());
     }
-    onSubmit({ id, name, number });
-    resetForm();
+
+    setIsVisibleModal(false);
+    dispatch(
+      contactsOperation.fetchPostContactOnServer({
+        name: name.value,
+        number: number.value,
+        id: uuidv4(),
+      }),
+    );
+
+    clearInput();
   };
-   
-   
-  const nameInputId = uuidv4();
-  const numberInputId = uuidv4();
+
+  function clearInput() {
+    setState({ name: '', number: '' });
+  }
 
   return (
-    <FormStyled onSubmit={submitForm}>
-     <LabelStyled htmlFor={nameInputId}>Name</LabelStyled>
-      <InputStyled
-        id={nameInputId}
-        type={'text'}
-        name={'name'}
-        placeholder={'Jason Born'}
-        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-        value={name}
-        onChange={handleInputValues}
-        title={
-          "Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
-        }
-        required={true}
-      />
+    <form className={styles.Form} onSubmit={addContactOnPhonebook}>
+      <div className={styles.Container}>
+        <Input
+          id="name"
+          value={state.name}
+          placeholder=" "
+          onChangeInput={onChangeInput}
+          type="text"
+          name="name"
+          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+          title="The name can only contain letters, an apostrophe, a dash, and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan, etc."
+          textLabel="name"
+        />
+      </div>
 
-    <LabelStyled htmlFor={numberInputId}>Number</LabelStyled>
-      <InputStyled
-        id={numberInputId}
-        type={'tel'}
-        name={'number'}
-        placeholder={'+44-787-123-45-67'}
-        pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-        value={number}
-        onChange={handleInputValues}
-        title={
-          'Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +'
-        }
-        required={true}
-      />
-
-      <SubmitButtonStyled type="submit">Add contact</SubmitButtonStyled>
-    </FormStyled>
+      <div className={styles.Container}>
+        <Input
+          id="number"
+          value={state.number}
+          placeholder=" "
+          onChangeInput={onChangeInput}
+          type="tel"
+          name="number"
+          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+          title="The phone number must be numeric and may contain spaces, dashes, parentheses, and may begin with +"
+          textLabel="number"
+        />
+      </div>
+      <div className={styles.Button}>
+        <Button type="onClick">Add contact</Button>
+      </div>
+    </form>
   );
 };
 
 ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  contacts: PropTypes.array.isRequired,
+  setIsVisibleModal: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  contacts: state.contactList.contacts,
-});
-
-const mapDispatchToProps = dispatch => ({
-  onSubmit: newContact => dispatch(contactsActions.addContact(newContact)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
+export default connect()(ContactForm);

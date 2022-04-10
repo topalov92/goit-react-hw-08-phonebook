@@ -1,18 +1,22 @@
-import styled from "@emotion/styled";
 
-export const LabelStyled = styled.label`
+.Container {
+    position: relative;
+    margin: 10px 15px;
+}
+
+.label{
 display: block;
 margin-bottom: 10px;
 font-size: 20px;
 font-weight: 700;
 color: black;
-`;
+};
 
-export const InputStyled = styled.input`
+.input{
 width: 250px;
 margin-bottom: 15px;
 padding: 10px;
 border: 2px solid orange;
 border-radius: 10px;
-`;
+};
 
