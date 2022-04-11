@@ -8,6 +8,8 @@ import ButtonBlack from 'components/Button/Button';
 import Filter from 'components/Filter';
 import empty from 'icon/empty.png';
 
+
+
 const ContactsView = ({ toggleIsVisible }) => {
   const { items } = useSelector(contactsSelector.getContacts);
   const filteredItems = useSelector(contactsSelector.visibleItems);
@@ -18,6 +20,8 @@ const ContactsView = ({ toggleIsVisible }) => {
   useEffect(() => {
     dispatch(contactsOperation.fetchContactsOnServer());
   }, [dispatch, isEmpty]);
+    
+    
 
   return (
     <>

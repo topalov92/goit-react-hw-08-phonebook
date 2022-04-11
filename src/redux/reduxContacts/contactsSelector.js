@@ -1,13 +1,13 @@
 import { createSelector } from "@reduxjs/toolkit";
 
-const getContacts = state => state.constacts;
+const getContacts = state => state.contacts;
 const getItems = state => state.contacts.items;
-const getFilter = state => state.constacts.filter;
+const getFilter = state => state.contacts.filter;
 const getIsLoading = state => state.contacts.isLoading;
-export const getIsEmpty = state => state.constacts.isEmpty;
+export const getIsEmpty = state => state.contacts.isEmpty;
 
 const visibleItems = createSelector([getItems, getFilter], (items, filter) =>
-    items.filter(({ name }) => name.toLowerCase().includes(filter.toLowerCase()))
+  items.filter(({ name }) => name.toLowerCase().includes(filter.toLowerCase())),
 );
 
 export { getContacts, getItems, getFilter, getIsLoading, visibleItems };

@@ -3,7 +3,7 @@ import { connect, useSelector, useDispatch } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { css } from '@emotion/react';
-import CircleLoader from 'react-spinners/PacmanLoader';
+import CircleLoader from 'react-spinners/CircleLoader';
 import 'react-toastify/dist/ReactToastify.css';
 import '../index.css';
 import Form from './ContactForm/ContactForm';
